@@ -2,25 +2,47 @@
   #app
     img(src='./assets/logo.png')
     h1 PlatziMusic
+    select(v-model="selectedCountry")
+      option(v-for="country in countries" :value="country.value") {{ country.name }}
     ul
-      li(v-for="artist in artists") {{artist.name}}
+      Artist(v-for="artist in artists" :artist="artist" :key="artist.mbid")
 </template>
 
 <script>
+import Artist from './components/Artist.vue'
 import getArtists from './api'
 export default {
   name: 'app',
   data () {
     return {
-      artists: []
+      artists: [],
+      countries: [
+        { name: 'Colombia', value: 'colombia'},
+        { name: 'Argentina', value: 'argentina'},
+        { name: 'España', value: 'spain'}
+      ],
+      selectedCountry: 'colombia',
     }
   },
-  mounted: function () {
-    const self = this
-    getArtists()
-      .then(function(artists) {
-        self.artists = artists
-      })
+  components: {
+    Artist
+  },
+  methods: {
+    refreshArtist() {
+      const self = this
+      getArtists(this.selectedCountry)
+        .then(function(artists) {
+          self.artists = artists
+        })
+    }
+  },
+  mounted () {
+    this.refreshArtist();
+  },
+  watch: {
+    selectedCountry() {
+      this.refreshArtist()
+    }
   }
 }
 </script>
